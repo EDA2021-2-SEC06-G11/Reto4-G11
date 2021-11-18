@@ -37,7 +37,11 @@ operación solicitada
 def printMenu():
     print("Bienvenido")
     print("1- Cargar información en el catálogo")
-    print("2- ")
+    print("2- Consultar Aeropuerto mas interconectado")
+    print("3- Consultar si dos mismos aeropuertos estan en el mismo cluster")
+    print("4- Conseguir la ruta mas corta para un aeropuerto de origen y otro de destino")
+    print("5- Abrir el sistema de millas para encontrar la ruta con mayor numero de ciudades visitadas en el presupuesto dado por las millas")
+    print("6- Consultar el impacto que tendria si un aeropuerto dado estuviera fuera de servicio en las rutas")
 
 catalog = None
 # Nota: Los prints se hacen aqui y no en el menu
