@@ -29,7 +29,9 @@ import config as cf
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
 from DISClib.DataStructures import mapentry as me
+from DISClib.DataStructures import graphstructure as gr
 from DISClib.Algorithms.Sorting import shellsort as sa
+from DISClib.Utils import error as error
 assert cf
 
 """
@@ -39,12 +41,153 @@ los mismos.
 
 # Construccion de modelos
 
+def newAnalyzer():
+    """ Inicializa el analizador
+
+   stops: Tabla de hash para guardar los vertices del grafo
+   connections: Grafo para representar las rutas entre estaciones
+   components: Almacena la informacion de los componentes conectados
+   paths: Estructura que almancena los caminos de costo minimo desde un
+           vertice determinado a todos los otros vértices del grafo
+    """
+    try:
+        catalog = {
+                    'ciudades': None,
+                    'rutas_dirigidas': None,
+                    'rutas_no_dirigidas': None
+                    }
+
+        catalog['ciudades'] = mp.newMap(numelements=14000,
+                                     maptype='PROBING',
+                                     comparefunction=None)
+
+        catalog['aeropuertos'] = mp.newMap(numelements=14000,
+                                     maptype='PROBING',
+                                     comparefunction=None)
+
+        catalog['rutas_dirigidas'] = gr.newGraph(datastructure='ADJ_LIST',
+                                              directed=True,
+                                              size=14000,
+                                              comparefunction=None)
+
+        catalog['rutas_no_dirigidas'] = gr.newGraph(datastructure='ADJ_LIST',
+                                              directed=False,
+                                              size=14000,
+                                              comparefunction=None)
+
+        return catalog
+    except Exception as exp:
+        error.reraise(exp, 'model:newAnalyzer')
+
 # Funciones para agregar informacion al catalogo
+
+
+def addCiudad(catalog, city):
+    #Adiciona Ciudad a mapa de Ciudades
+    
+    #Lista de aeropuertos
+    listaIATAS = lt.newList()
+
+    #Crear llave
+    key = city['city_ascii']
+    city['aeropuertos'] = listaIATAS
+    mp.put(catalog['ciudades'], key, city)
+
+
+def addAeropuerto(catalog, aeropuerto):
+    #Adiciona un aeropuerto como un vertice del grafo
+    gr.insertVertex(catalog['rutas_dirigidas'], aeropuerto['IATA'])
+
+def addAeropuertoMap(catalog, aeropuerto):
+    mp.put(catalog['aeropuertos'], aeropuerto['IATA'], aeropuerto)
+    #try por si acaso xd
+    #TODO AÑADIR AEROPUERTO A LISTA EN CIUDADES PARA R4
+
+def addVuelo(catalog, vuelo):
+    #Adiciona a un aeropuerto un vuelo que salga de este
+    vertexa = vuelo['Departure']
+    vertexb = vuelo['Destination']
+    weight = vuelo['distance_km']
+    try:
+        gr.addEdge(catalog['rutas_dirigidas'], vertexa, vertexb, weight)
+    except:
+        a = 'a'
+
+
+def cargarDigrafo(catalog):
+    listaarcos = gr.edges(catalog['rutas_dirigidas'])
+    arcos = lt.iterator(listaarcos)
+    for arco in arcos:
+        vertexa = arco['vertexA']
+        vertexb = arco['vertexB']
+        
+        arq = gr.getEdge(catalog['rutas_dirigidas'], vertexb, vertexa)
+        if arq != None:
+            if not gr.containsVertex(catalog['rutas_no_dirigidas'], vertexa):
+                gr.insertVertex(catalog['rutas_no_dirigidas'], vertexa)
+            if not gr.containsVertex(catalog['rutas_no_dirigidas'], vertexb):
+                gr.insertVertex(catalog['rutas_no_dirigidas'], vertexb)
+            
+            arcue = gr.getEdge(catalog['rutas_no_dirigidas'], vertexb, vertexa)
+            if arcue == None:
+                gr.addEdge(catalog['rutas_no_dirigidas'], vertexa, vertexb, arco['weight'])
+
+
 
 # Funciones para creacion de datos
 
 # Funciones de consulta
 
+def totalAeropuertos(catalog):
+    grafo_dirigido = gr.numVertices(catalog['rutas_dirigidas'])
+    grafo_no_dirigido = gr.numVertices(catalog['rutas_no_dirigidas'])
+    return grafo_dirigido, grafo_no_dirigido
+
+def totalRutasAereas(catalog):
+    grafo_dirigido = gr.numEdges(catalog['rutas_dirigidas'])
+    grafo_no_dirigido = gr.numEdges(catalog['rutas_no_dirigidas'])
+    return grafo_dirigido, grafo_no_dirigido
+
+def totalCiudades(catalog):
+    return mp.size(catalog['ciudades'])
+
+def primerAeropuerto(catalog):
+    listavertices1 = gr.vertices(catalog['rutas_dirigidas'])
+    listavertices2 = gr.vertices(catalog['rutas_no_dirigidas'])
+    primero1 = lt.firstElement(listavertices1)
+    primero2 = lt.firstElement(listavertices2)
+    respuesta1 = me.getValue(mp.get(catalog['aeropuertos'], primero1))
+    respuesta2 = me.getValue(mp.get(catalog['aeropuertos'], primero2))
+    return respuesta1, respuesta2
+
+def ultimaciudad(catalog):
+    listault = mp.valueSet(catalog['ciudades'])
+    ultima = lt.lastElement(listault)
+    return ultima
+
 # Funciones utilizadas para comparar elementos dentro de una lista
 
 # Funciones de ordenamiento
+'''
+def compararCiudad(ciudad1, ciudad2):
+    ciudada = ciudad1['city_ascii']
+    ciudadb = ciudad2['city_ascii']
+
+    if ciudada > ciudadb:
+        return 1
+    elif ciudada < ciudadb:
+        return -1
+    else:
+        return 0
+
+def compararIata(aeropuerto1, aeropuerto2):
+    Iata1 = aeropuerto1
+    Iata2 = aeropuerto2
+
+    if Iata1 > Iata2:
+        return 1
+    elif Iata1 < Iata2:
+        return -1
+    else:
+        return 0
+'''

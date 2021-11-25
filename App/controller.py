@@ -24,15 +24,88 @@ import config as cf
 import model
 import csv
 
-
 """
 El controlador se encarga de mediar entre la vista y el modelo.
 """
 
 # Inicialización del Catálogo de libros
 
+def init():
+    # Inicializacion del modelo
+    intermediario = model.newAnalyzer() 
+    return intermediario
+
+
 # Funciones para la carga de datos
+
+def loadData(catalog, airportfile, routefile, cityfile):
+    #Arreglar los tres archivos
+    citylista = cf.data_dir + cityfile
+    ciudades = csv.DictReader(open(citylista, encoding="utf-8"),
+                                delimiter=",") #GUARDAR LISTA IATAS
+    
+    airportlista = cf.data_dir + airportfile
+    aeropuertos = csv.DictReader(open(airportlista, encoding="utf-8"),
+                                delimiter=",")
+
+
+    rutalista = cf.data_dir + routefile
+    rutas = csv.DictReader(open(rutalista, encoding="utf-8"),
+                                delimiter=",")
+    #ciudades es lista iterable de python
+
+    #Cargar informacion de las ciudades
+
+    for city in ciudades:
+        try:
+            model.addCiudad(catalog, city)
+        except:
+            a = 'a'
+
+    #Cargar primer grafo
+    
+    for aeropuerto in aeropuertos:
+        try:
+            model.addAeropuertoMap(catalog, aeropuerto)
+        except:
+            a = 'a'
+
+
+        model.addAeropuerto(catalog, aeropuerto)
+
+        
+
+    for ruta in rutas:
+        model.addVuelo(catalog, ruta)
+
+    #Cargar segundo grafo
+    model.cargarDigrafo(catalog)
+
+    #Recorrer primer grafo
+    #Por cada aeropuerto, revisas sus destinos
+    #En cada destino revisar si se contiene el aeropuerto, si es bilateral (usar contains en lista de conexiones)
+    #Si existe la conextion, añadir el vertice con su conexiones
+
+
+
+
 
 # Funciones de ordenamiento
 
 # Funciones de consulta sobre el catálogo
+
+
+def totalAeropuertos(catalog):
+    return model.totalAeropuertos(catalog)
+
+def totalRutasAereas(catalog):
+    return model.totalRutasAereas(catalog)
+
+def totalCiudades(catalog):
+    return model.totalCiudades(catalog)
+
+def primerAeropuerto(catalog):
+    return model.primerAeropuerto(catalog)
+
+def ultimaciudad(catalog):
+    return model.ultimaciudad(catalog)
