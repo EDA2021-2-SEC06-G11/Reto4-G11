@@ -59,15 +59,10 @@ def opcion2(catalog):
     print('\nCargando informacion de aeropuertos y sus vuelos')
     controller.loadData(catalog, archivoDeCarga1, archivoDeCarga2, archivoDeCarga3)
     totalaeropuerto = controller.totalAeropuertos(catalog)
-    print(totalaeropuerto)
     totalrutas = controller.totalRutasAereas(catalog)
-    print(totalrutas)
     totalciudades = controller.totalCiudades(catalog)
-    print(totalciudades)
     primerosaeropuertos = controller.primerAeropuerto(catalog)
-    print(primerosaeropuertos)
     ultimaciudad = controller.ultimaciudad(catalog)
-    print(ultimaciudad)
     print('Numero total de aeropuertos del grafo direccional:' + str(totalaeropuerto[0]))
     print('Numero total de aeropuertos del grafo no direccional:' + str(totalaeropuerto[1]))
     print('Numero total de rutas aéreas del grafo direccional: ' + str(totalrutas[0]))
@@ -76,7 +71,6 @@ def opcion2(catalog):
     print('El primer aeropuerto del grafo direccional:' , primerosaeropuertos[0])
     print('El primer aeropuerto del grafo no direccional:' , primerosaeropuertos[1])
     print('La ultima ciudad cargada fue:', ultimaciudad)
-    print('Que pena no sabemos si el numero total de aeropuertos es el adecuado, y creemos que es por un problema de limite de memoria, ya tenemos cita para averiguar este problema, muchas gracias :)')
 
 
 def opcion3(catalog):

@@ -97,6 +97,17 @@ def addCiudad(catalog, city):
 def addAeropuerto(catalog, aeropuerto):
     #Adiciona un aeropuerto como un vertice del grafo
     gr.insertVertex(catalog['rutas_dirigidas'], aeropuerto['IATA'])
+    try:
+        ciudadvalor = me.getValue(mp.get(catalog['ciudades'], aeropuerto["City"]))
+        ciudadListaAeropuertos = ciudadvalor['aeropuertos']
+        lt.addLast(ciudadListaAeropuertos, aeropuerto['IATA'])
+        ciudadvalor['aeropuertos'] = ciudadListaAeropuertos
+        mp.put(catalog['ciudades'], aeropuerto["City"], ciudadvalor)
+        print(ciudadvalor)
+    except:
+        a = 'a'
+    
+    #print(ciudadListaAeropuertos)
 
 def addAeropuertoMap(catalog, aeropuerto):
     mp.put(catalog['aeropuertos'], aeropuerto['IATA'], aeropuerto)
@@ -135,6 +146,19 @@ def cargarDigrafo(catalog):
 
 
 # Funciones para creacion de datos
+
+def planMillas(catalog, ciudad, millas):
+    a = 'a'
+    #Plan 1
+    #Sacamos los aeropuertos de la ciudad y escogemos, no se, uno :| considerando conexiones? no sabria bien aun
+    #Conseguir el arco de menor distancia que no este entre las opciones dentro de la ciudad
+    #if distancia menos a millas restantes, viajamos
+    #cogemos la nueva ciudad y repetimos el mismo proceso ...
+
+    #Plan 2
+    #como nos piden, un arbol de expansion minima
+
+    
 
 # Funciones de consulta
 
