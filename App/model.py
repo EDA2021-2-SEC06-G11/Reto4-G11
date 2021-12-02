@@ -32,6 +32,7 @@ from DISClib.DataStructures import mapentry as me
 from DISClib.DataStructures import graphstructure as gr
 from DISClib.Algorithms.Sorting import shellsort as sa
 from DISClib.Utils import error as error
+from DISClib.Algorithms.Graphs import prim as pr
 assert cf
 
 """
@@ -74,6 +75,10 @@ def newAnalyzer():
                                               directed=False,
                                               size=14000,
                                               comparefunction=None)
+        catalog['coste_minimo'] = gr.newGraph(datastructure='ADJ_LIST',
+                                              directed=False,
+                                              size=14000,
+                                              comparefunction=None)       
 
         return catalog
     except Exception as exp:
@@ -136,29 +141,47 @@ def cargarDigrafo(catalog):
         if arq != None:
             if not gr.containsVertex(catalog['rutas_no_dirigidas'], vertexa):
                 gr.insertVertex(catalog['rutas_no_dirigidas'], vertexa)
+                gr.insertVertex(catalog['coste_minimo'], vertexa)
             if not gr.containsVertex(catalog['rutas_no_dirigidas'], vertexb):
                 gr.insertVertex(catalog['rutas_no_dirigidas'], vertexb)
+                gr.insertVertex(catalog['coste_minimo'], vertexa)
             
             arcue = gr.getEdge(catalog['rutas_no_dirigidas'], vertexb, vertexa)
             if arcue == None:
                 gr.addEdge(catalog['rutas_no_dirigidas'], vertexa, vertexb, arco['weight'])
+                gr.addEdge(catalog['coste_minimo'], vertexa, vertexb, arco['weight'])
 
 
 
 # Funciones para creacion de datos
 
 def planMillas(catalog, ciudad, millas):
-    a = 'a'
-    #Plan 1
-    #Sacamos los aeropuertos de la ciudad y escogemos, no se, uno :| considerando conexiones? no sabria bien aun
-    #Conseguir el arco de menor distancia que no este entre las opciones dentro de la ciudad
-    #if distancia menos a millas restantes, viajamos
-    #cogemos la nueva ciudad y repetimos el mismo proceso ...
+    ciudad = me.getValue(mp.get(catalog['ciudades'], ciudad))
+    aeropuertos = me.getValue(mp.get(ciudad, 'aeropuertos'))
+    primervertice = lt.firstElement(aeropuertos)
+    #Tonces, creo que esto con
+    #Mapa de arcos nuevos
+    nuevos_arcos = mp.newMap()
 
-    #Plan 2
-    #como nos piden, un arbol de expansion minima
+    prim = pr.PrimMST('coste_minimo')
+    
+    
+
+    #Coger adjacentes
+
+    #Verificar si alguno esta en otra ciudad
+
+    #Si no, tomar el de menor costo
+
+
+
 
     
+
+    
+
+    
+    arcos = gr.edges(catalog["rutas_no_dirigidas"])
 
 # Funciones de consulta
 
@@ -192,6 +215,8 @@ def ultimaciudad(catalog):
 # Funciones utilizadas para comparar elementos dentro de una lista
 
 # Funciones de ordenamiento
+
+
 '''
 def compararCiudad(ciudad1, ciudad2):
     ciudada = ciudad1['city_ascii']

@@ -92,6 +92,9 @@ def loadData(catalog, airportfile, routefile, cityfile):
 
 # Funciones de ordenamiento
 
+def planMillas(catalog, cidad, millas):
+    model.planMillas(catalog, cidad, millas,)
+
 # Funciones de consulta sobre el catálogo
 
 
