@@ -84,7 +84,7 @@ def loadData(catalog, airportfile, routefile, cityfile):
     #Recorrer primer grafo
     #Por cada aeropuerto, revisas sus destinos
     #En cada destino revisar si se contiene el aeropuerto, si es bilateral (usar contains en lista de conexiones)
-    #Si existe la conextion, añadir el vertice con su conexiones
+
 
 
 
@@ -93,7 +93,7 @@ def loadData(catalog, airportfile, routefile, cityfile):
 # Funciones de ordenamiento
 
 def planMillas(catalog, cidad, millas):
-    model.planMillas(catalog, cidad, millas,)
+    return model.planMillas(catalog, cidad, millas,)
 
 # Funciones de consulta sobre el catálogo
 

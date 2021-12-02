@@ -108,7 +108,7 @@ def addAeropuerto(catalog, aeropuerto):
         lt.addLast(ciudadListaAeropuertos, aeropuerto['IATA'])
         ciudadvalor['aeropuertos'] = ciudadListaAeropuertos
         mp.put(catalog['ciudades'], aeropuerto["City"], ciudadvalor)
-        print(ciudadvalor)
+
     except:
         a = 'a'
     
@@ -141,33 +141,36 @@ def cargarDigrafo(catalog):
         if arq != None:
             if not gr.containsVertex(catalog['rutas_no_dirigidas'], vertexa):
                 gr.insertVertex(catalog['rutas_no_dirigidas'], vertexa)
-                gr.insertVertex(catalog['coste_minimo'], vertexa)
+                #gr.insertVertex(catalog['coste_minimo'], vertexa)
             if not gr.containsVertex(catalog['rutas_no_dirigidas'], vertexb):
                 gr.insertVertex(catalog['rutas_no_dirigidas'], vertexb)
-                gr.insertVertex(catalog['coste_minimo'], vertexa)
+                #gr.insertVertex(catalog['coste_minimo'], vertexa)
             
             arcue = gr.getEdge(catalog['rutas_no_dirigidas'], vertexb, vertexa)
             if arcue == None:
-                gr.addEdge(catalog['rutas_no_dirigidas'], vertexa, vertexb, arco['weight'])
-                gr.addEdge(catalog['coste_minimo'], vertexa, vertexb, arco['weight'])
+                gr.addEdge(catalog['rutas_no_dirigidas'], vertexa, vertexb, float(arco['weight']))
+                #gr.addEdge(catalog['coste_minimo'], vertexa, vertexb, arco['weight'])
 
 
 
 # Funciones para creacion de datos
 
 def planMillas(catalog, ciudad, millas):
-    ciudad = me.getValue(mp.get(catalog['ciudades'], ciudad))
-    aeropuertos = me.getValue(mp.get(ciudad, 'aeropuertos'))
-    primervertice = lt.firstElement(aeropuertos)
-    #Tonces, creo que esto con
-    #Mapa de arcos nuevos
-    nuevos_arcos = mp.newMap()
-
-    prim = pr.PrimMST('coste_minimo')
-    
-    
+    #var = mp.get(catalog['ciudades'], ciudad)
+    #ciudade = me.getValue(var)
+    #aeropuertos = ciudade ['aeropuertos']
+    #primervertice = lt.firstElement(aeropuertos)
 
     #Coger adjacentes
+    prim = pr.PrimMST(catalog['rutas_no_dirigidas'])
+    numNodos = gr.numVertices(catalog['rutas_no_dirigidas'])
+    search = prim['distTo']
+    algo = mp.valueSet(search)
+    resp = 0
+    for element in lt.iterator(algo):
+        resp = resp+ element
+
+
 
     #Verificar si alguno esta en otra ciudad
 
@@ -182,7 +185,7 @@ def planMillas(catalog, ciudad, millas):
 
     
     arcos = gr.edges(catalog["rutas_no_dirigidas"])
-
+    return numNodos, resp
 # Funciones de consulta
 
 def totalAeropuertos(catalog):

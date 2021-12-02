@@ -40,7 +40,7 @@ operación solicitada
 archivoDeCarga1 = 'airports_full.csv'
 archivoDeCarga2 = 'routes_full.csv'
 archivoDeCarga3 = 'worldcities.csv'
-
+catalog = None
 #Menu
 
 def printMenu():
@@ -71,6 +71,7 @@ def opcion2(catalog):
     print('El primer aeropuerto del grafo direccional:' , primerosaeropuertos[0])
     print('El primer aeropuerto del grafo no direccional:' , primerosaeropuertos[1])
     print('La ultima ciudad cargada fue:', ultimaciudad)
+    return catalog
 
 
 def opcion3(catalog):
@@ -83,7 +84,9 @@ def opcion5(catalog,origen,destino):
     return controller.rutaMasCorta(catalog,origen,destino)
 
 def opcion6(catalog,ciudad,millas):
-    return controller.planMillas(catalog,ciudad,millas)
+    resp1,resp2 =  controller.planMillas(catalog,ciudad,millas)
+    print('Numero de nodos conectados: ', resp1)
+    print('Costo total de La Red: ', resp2)
 
 def opcion7(catalog,aeropuerto):
     return controller.aeropuertoFueraFuncionamiento(catalog,aeropuerto)
