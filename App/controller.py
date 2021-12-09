@@ -55,25 +55,22 @@ def loadData(catalog, airportfile, routefile, cityfile):
     #ciudades es lista iterable de python
 
     #Cargar informacion de las ciudades
-
+    pyuc = [None, None]
+    tciud = 0
     for city in ciudades:
-        try:
-            model.addCiudad(catalog, city)
-        except:
-            a = 'a'
+        tciud = tciud + 1
+        pyuc = model.addCiudad(catalog, city, pyuc)
 
     #Cargar primer grafo
     
+    pyua = ['a', None]
     for aeropuerto in aeropuertos:
         try:
             model.addAeropuertoMap(catalog, aeropuerto)
         except:
             a = 'a'
+        pyua = model.addAeropuerto(catalog, aeropuerto, pyua)
 
-
-        model.addAeropuerto(catalog, aeropuerto)
-
-        
 
     for ruta in rutas:
         model.addVuelo(catalog, ruta)
@@ -81,6 +78,8 @@ def loadData(catalog, airportfile, routefile, cityfile):
     #Cargar segundo grafo
     model.cargarDigrafo(catalog)
 
+
+    return [pyuc, pyua, tciud]
     #Recorrer primer grafo
     #Por cada aeropuerto, revisas sus destinos
     #En cada destino revisar si se contiene el aeropuerto, si es bilateral (usar contains en lista de conexiones)
@@ -90,13 +89,46 @@ def loadData(catalog, airportfile, routefile, cityfile):
 
 
 
-# Funciones de ordenamiento
+# Funciones de ordenamiento\
+
+def getAeropuertoMasConectado(catalog):
+    return model.getAeropuertoMasConectado(catalog)
+
+def estanMismoCluster(catalog, ciudad1, ciudad2):
+    return model.estanMismoCluster(catalog, ciudad1, ciudad2)
 
 def planMillas(catalog, cidad, millas):
     return model.planMillas(catalog, cidad, millas,)
 
+def aeropuertoFueraFuncionamiento(catalog, iata):
+    return model.aeropuertoFueraFuncionamiento(catalog, iata)
+
+def encontrarRutaMasCorta(catalog,ciudadOrigen,CiudadDestino):
+    """
+    Funcion para encontrar el camino mas corto entre dos ciudades:
+    Returns:
+        1. Aeropuerto Origen(String)
+        2. Aeropuerto Destino(String)
+        3. Ruta (lt que tiene [trayecto(string),distancia(double en km)])
+        4. Distancia Total de la Ruta
+    """
+
+    AeropuertoOrigen = model.getAeropuertoMasCerca(catalog,ciudadOrigen)
+    AeropuertoDestino = model.getAeropuertoMasCerca(catalog,CiudadDestino)
+
+    Ruta = model.getRutaMasCorta(catalog,AeropuertoOrigen,AeropuertoDestino)
+
+
+    return AeropuertoOrigen, AeropuertoDestino, Ruta
+
+
 # Funciones de consulta sobre el catálogo
 
+def getAeropuerto(catalog, IATA):
+    """
+    Deberia retornar una lista de 4 elementos de esta forma:[Iata,Name,City,Country]
+    """
+    return model.getAeropuerto(catalog, IATA)
 
 def totalAeropuertos(catalog):
     return model.totalAeropuertos(catalog)
@@ -107,8 +139,5 @@ def totalRutasAereas(catalog):
 def totalCiudades(catalog):
     return model.totalCiudades(catalog)
 
-def primerAeropuerto(catalog):
-    return model.primerAeropuerto(catalog)
-
-def ultimaciudad(catalog):
-    return model.ultimaciudad(catalog)
+def aeropuertosDeCiudad(catalog, ciudad):
+    return model.aeropuertosDeCiudad(catalog, ciudad)

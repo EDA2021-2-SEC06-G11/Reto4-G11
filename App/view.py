@@ -25,6 +25,8 @@ import sys
 import controller
 import threading
 from DISClib.ADT import list as lt
+from prettytable import PrettyTable
+import time
 assert cf
 
 
@@ -37,9 +39,9 @@ operación solicitada
 
 # Variables
 
-archivoDeCarga1 = 'airports_full.csv'
-archivoDeCarga2 = 'routes_full.csv'
-archivoDeCarga3 = 'worldcities.csv'
+archivoDeCarga1 = 'airports-utf8-small.csv'
+archivoDeCarga2 = 'routes-utf8-small.csv'
+archivoDeCarga3 = 'worldcities-utf8.csv'
 catalog = None
 #Menu
 
@@ -57,39 +59,236 @@ def printMenu():
 # Nota: Los prints se hacen aqui y no en el menu
 def opcion2(catalog):
     print('\nCargando informacion de aeropuertos y sus vuelos')
-    controller.loadData(catalog, archivoDeCarga1, archivoDeCarga2, archivoDeCarga3)
+    pyu = controller.loadData(catalog, archivoDeCarga1, archivoDeCarga2, archivoDeCarga3)
     totalaeropuerto = controller.totalAeropuertos(catalog)
     totalrutas = controller.totalRutasAereas(catalog)
     totalciudades = controller.totalCiudades(catalog)
-    primerosaeropuertos = controller.primerAeropuerto(catalog)
-    ultimaciudad = controller.ultimaciudad(catalog)
-    print('Numero total de aeropuertos del grafo direccional:' + str(totalaeropuerto[0]))
-    print('Numero total de aeropuertos del grafo no direccional:' + str(totalaeropuerto[1]))
-    print('Numero total de rutas aéreas del grafo direccional: ' + str(totalrutas[0]))
-    print('Numero total de rutas aéreas del grafo no direccional: ' + str(totalrutas[1]))
-    print('Numero total de ciudades: ' + str(totalciudades))
-    print('El primer aeropuerto del grafo direccional:' , primerosaeropuertos[0])
-    print('El primer aeropuerto del grafo no direccional:' , primerosaeropuertos[1])
-    print('La ultima ciudad cargada fue:', ultimaciudad)
+
+    print('=== Airports-Routes DiGraph ===')
+    print('Nodes: ' + str(totalaeropuerto[0]) + ' loaded airports.')
+    print('Edges: ' + str(totalrutas[0]) + ' loaded routes.' )
+    print('First & Last Airport loaded in the DiGraph.')
+
+    table1 = PrettyTable(['IATA', 'Name', 'City', 'Country', 'Latitude', 'Longitude'])
+
+    table1.add_row([pyu[1][0]['IATA'], pyu[1][0]['Name'], pyu[1][0]['City'], pyu[1][0]['Country'], pyu[1][0]['Latitude'], pyu[1][0]['Longitude']])
+    table1.add_row([pyu[1][1]['IATA'], pyu[1][1]['Name'], pyu[1][1]['City'], pyu[1][1]['Country'], pyu[1][1]['Latitude'], pyu[1][1]['Longitude']])  
+
+    print(table1)
+
+    print('')
+
+    print('=== Airports-Routes Graph ===')
+    print('Nodes: ' + str(totalaeropuerto[1]) + ' loaded airports.')
+    print('Edges: ' + str(totalrutas[1]) + ' loaded routes.' )
+    print('First & Last Airport loaded in the Graph.')
+
+    print(table1)
+
+    print('')
+
+    print('=== City Network ==')
+    print('The number of cities are: ' + str(pyu[2]))
+    print('First & Last City loaded in data structure.')
+
+    table2 = PrettyTable(['city', 'country', 'lat', 'lng', 'population'])
+
+    table2.add_row([pyu[0][0]['city'], pyu[0][0]['country'], pyu[0][0]['lat'], pyu[0][0]['lng'], pyu[0][0]['population']])
+    table2.add_row([pyu[0][1]['city'], pyu[0][1]['country'], pyu[0][1]['lat'], pyu[0][1]['lng'], pyu[0][1]['population']])
+
+    print(table2)
+
     return catalog
 
 
 def opcion3(catalog):
-    return controller.getAeropuertoMasConectado(catalog)
+    start = time.time()
+    totalaeropuerto = controller.totalAeropuertos(catalog)
+    respuestas = controller.getAeropuertoMasConectado(catalog)
+    end = time.time()
+
+
+    print('================ Req No. 1 Inputs ================')
+    print('most connected airports in network (TOP 5)')
+    print('Numbers of airports in networks: ' + str(totalaeropuerto[0]))
+    print('')
+    print('================ Req No. 2 Answer ================')
+    print('Connected airports inside network: ' + str(respuestas[0]))
+    print('TOP 5 most connected airpots...')
+
+    table = PrettyTable(['Name', 'City', 'Country', 'IATA', 'connections', 'inbound', 'outbound'])
+    ite = lt.iterator(respuestas[1])
+    for element in ite:
+        table.add_row([element[0], element[1], element[2], element[3], element[4], element[5], element[6]])
+
+    print(table)
+    print(end - start)
 
 def opcion4(catalog,aero1,aero2):
-    return controller.estanMismoCluster(catalog,aero1,aero2)
+    start = time.time()
+    respuestas = controller.estanMismoCluster(catalog,aero1,aero2)
+    end = time.time()
 
-def opcion5(catalog,origen,destino):
-    return controller.rutaMasCorta(catalog,origen,destino)
+    print('================ Req No. 2 Inputs ================')
+    print('Airport-1 IATA Code: ' + aero1)
+    print('Airport-2 IATA Code: ' + aero2)
+
+    print('')
+
+    print('================ Req No. 2 Answer ================')
+    print('+++ Airport1 IATA Code: LED +++')
+
+    table1 = PrettyTable(['IATA', 'Name', 'City', 'Country'])
+
+    table1.add_row([respuestas[0]['IATA'], respuestas[0]['Name'], respuestas[0]['City'], respuestas[0]['Country']])
+    print(table1)
+
+    print('+++ Airport1 IATA Code: RTP +++')
+
+    table2 = PrettyTable(['IATA', 'Name', 'City', 'Country'])
+
+    table2.add_row([respuestas[1]['IATA'], respuestas[1]['Name'], respuestas[1]['City'], respuestas[1]['Country']])
+    print(table2)
+
+    print('- Number of SCC in Airport-Route network: ' + str(respuestas[3]))
+    print('- Does the ' + respuestas[0]['Name'] + ' and the ' + respuestas[1]['Name'] + 'belong together?')
+    print('- ANS: ' + str(respuestas[2]))
+
+    print(end - start)
+
+def opcion5(catalog):
+    print('================ Req No. 3 Inputs ================')
+    ciudadOrigen = input('Departure City: ')
+    CiudadDestino = input('Arrival City: ')
+    print('')
+
+
+    ## Valores de TEST
+    ciudadOrigen = 'St. Petersburg'
+    CiudadDestino = 'Lisbon'
+
+    AeropuertoOrigen,AeropuertoDestino,Ruta = controller.encontrarRutaMasCorta(catalog,ciudadOrigen,CiudadDestino)
+    print('================ Req No. 3 Answer ================')
+
+    print('')
+    aeropuerto1 = controller.getAeropuerto(catalog, AeropuertoOrigen)
+    table1 = PrettyTable(['IATA','Name','City', 'Country'])
+    table1.add_row([lt.getElement(aeropuerto1,1),lt.getElement(aeropuerto1,2),lt.getElement(aeropuerto1,3),lt.getElement(aeropuerto1,4)])
+    print('The departure ariport from ', ciudadOrigen , ' is:')
+    print(table1)
+    print('')
+    aeropuerto2 = controller.getAeropuerto(catalog, AeropuertoDestino)
+    table2 = PrettyTable(['IATA','Name','City', 'Country'])
+    table2.add_row([lt.getElement(aeropuerto2,1),lt.getElement(aeropuerto2,2),lt.getElement(aeropuerto2,3),lt.getElement(aeropuerto2,4)])
+    print('The arrival ariport at ', ciudadOrigen , ' is:')
+    print(table2)
+    print('')
+
+
+    print('Djikstra trip Details: ')
+    print('')
+    table = PrettyTable(['Airline','Departure','Destination','Distance'])
+    distTotal = 0
+    for trayecto in lt.iterator(Ruta):
+        table.add_row([lt.getElement(trayecto,1),lt.getElement(trayecto,2),lt.getElement(trayecto,3),lt.getElement(trayecto,4)])
+        distTotal = distTotal + float(lt.getElement(trayecto,4))
+
+    print('Total Distance Traveled: ',distTotal, ' km')
+    print('')
+    print('Trip Path: ')
+    print(table)
+
 
 def opcion6(catalog,ciudad,millas):
-    resp1,resp2 =  controller.planMillas(catalog,ciudad,millas)
-    print('Numero de nodos conectados: ', resp1)
-    print('Costo total de La Red: ', resp2)
+    
+    aeropuertos = controller.aeropuertosDeCiudad(catalog, ciudad)
+    aer = lt.iterator(aeropuertos)
+    for aeropuer in aer:
+        print(aeropuer)
+    aeropuerto = input('Elija alguno de los aeropuertos de la ciudad: ')
+    start = time.time()
+    resultados =  controller.planMillas(catalog,aeropuerto,millas)
+    end = time.time()
+    
+    print('================ Req No. 4 Inputs ================')
+    print('Departure IATA Code: ' + aeropuerto)
+    print('Available Travel Miles: ' + millas)
+    print('')
+    print('================ Req No. 4 Answer ================')
+    print('+++ Departure Airport for IATA code: LIS +++')
+
+    table1 = PrettyTable(['IATA', 'Name', 'City', 'Country'])
+
+    table1.add_row([resultados[0]['IATA'], resultados[0]['Name'], resultados[0]['City'], resultados[0]['Country']])
+
+    print(table1)
+
+    print('')
+    print('- Number of possible airports: ' + str(resultados[1]))
+    print('- Max traveling distance between airports: ' + str(round(resultados[2],2)) + ' (km)')
+    print('- Passenger available traveling miles: ' + str(resultados[3]) + '(km)')
+    print('')
+    print('+++ Longest possible route with airport ' + aeropuerto + ' +++')
+    print('- Longest possible path distance: ' + str(round(resultados[4], 2)) + '(km)')
+    print('- Longests possible path distance:')
+
+    table2 = PrettyTable(['Airline', 'Departure', 'Destination', 'distance_km'])
+
+    vuelos = lt.iterator(resultados[5])
+
+    for vuelo in vuelos:
+        table2.add_row([vuelo['Airline'], vuelo['Departure'], vuelo['Destination'], vuelo['distance_km']])
+
+    print(table2)
+    print('-----')
+    print('The passenger needs ' + str(resultados[6]) + ' miles to complete the trip.')
+    print('-----')
+
+    print(end - start)
 
 def opcion7(catalog,aeropuerto):
-    return controller.aeropuertoFueraFuncionamiento(catalog,aeropuerto)
+    start = time.time()
+    respuesta = controller.aeropuertoFueraFuncionamiento(catalog,aeropuerto)
+    end = time.time()
+
+    print('================ Req No. 5 Inputs ================')
+    print('Closing the airport with IATA code: ' + aeropuerto)
+    print('')
+    print('--- Airport-Routes DiGraph ---')
+    print('Original number of Airports: ' + str(respuesta[0][0]) + ' and Routes: ' + str(respuesta[0][1]))
+    print('--- Airports-Routes Graph ---')
+    print('Original number of Airports: ' + str(respuesta[1][0]) + ' and Routes: ' + str(respuesta[1][1]))
+    print('')
+    print('+++ Removing Airport with IATA: ' + aeropuerto + ' +++')
+    print('')
+    print('--- Airports-Routes DiGraph ---')
+    print('Resulting number of Airports: ' + str(respuesta[2][0]) + ' and Routes: ' + str(respuesta[2][1]))
+    print('--- Airports-Routes Graph ---')
+    print('Resulting number of Airports: ' + str(respuesta[3][0]) + ' and Routes: ' + str(respuesta[3][1]))
+    print('')
+    print('================ Req No. 5 Answer ================')
+    print('There are ' + str(lt.size(respuesta[4])) + ' Airports affected by the removal of ' + aeropuerto)
+    print('The first & last 3 Airports affected are:')
+
+    table = PrettyTable(['IATA', 'Name', 'City', 'Country'])
+
+    tamanio = lt.size(respuesta[4])
+    contador = 1
+    while contador <= tamanio:
+        while contador <= 3 and contador <= tamanio:
+            element = lt.getElement(respuesta[4], contador)
+            table.add_row([element['IATA'], element['Name'], element['City'], element['Country']])
+            contador = contador + 1
+        
+        while contador <= 6 and contador <= tamanio:
+            element = lt.getElement(respuesta[4], tamanio - contador)
+            table.add_row([element['IATA'], element['Name'], element['City'], element['Country']])
+            contador = contador + 1
+        contador = contador  + 1
+    
+    print(table)
+
+    print(end - start)
 """
 Menu principal
 """
@@ -117,16 +316,14 @@ def thread_cycle():
 
         elif int(inputs[0]) == 5:
             print('Ingrese la informacion para encontrar la ruta mas corta entre dos ciudades')
-            origen  = input('Ingrese ciudad de origen')
-            destino = input('Ingrese ciudad de destino')
-            opcion5(catalog,origen,destino)
+            opcion5(catalog)
 
         elif int(inputs[0]) == 6:
             print('Bienvenido al sistema de Millas')
             print('Ingrese su informacion para buscar el viaje con la mayor cantidad de ciudades bajo el presupuesto de millas dado')
-            ciudad = input('Ingrese Ciudad de origen:')
-            millas = input('Cantidad de millasdisponibles del viajero.')
-            opcion6(catalog,ciudad,millas)
+            aeropuerto = input('Ingrese ciudad de origen: ')
+            millas = input('Cantidad de millas disponibles del viajero: ')
+            opcion6(catalog,aeropuerto,millas)
 
         elif int(inputs[0]) == 7:
             aeropuerto = input('Código IATA del aeropuerto fuera de funcionamiento:')
